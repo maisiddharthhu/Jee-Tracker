@@ -1,20 +1,103 @@
-const CACHE = 'jee-tracker-v1';
-const FILES = ['/', '/index.html'];
+const CACHE_NAME = 'jee-tracker-v1';
+const urlsToCache = [
+    './',
+    './index.html',
+    './manifest.json'
+];
 
-self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)));
-  self.skipWaiting();
+// Install event
+self.addEventListener('install', event => {
+    event.waitUntil(
+        caches.open(CACHE_NAME)
+            .then(cache => {
+                return cache.addAll(urlsToCache);
+            })
+            .catch(err => console.log('Cache install error:', err))
+    );
+    self.skipWaiting();
 });
 
-self.addEventListener('activate', e => {
-  e.waitUntil(caches.keys().then(keys =>
-    Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
-  ));
-  self.clients.claim();
+// Activate event
+self.addEventListener('activate', event => {
+    event.waitUntil(
+        caches.keys().then(cacheNames => {
+            return Promise.all(
+                cacheNames.map(cacheName => {
+                    if (cacheName !== CACHE_NAME) {
+                        return caches.delete(cacheName);
+                    }
+                })
+            );
+        })
+    );
+    self.clients.claim();
 });
 
-self.addEventListener('fetch', e => {
-  e.respondWith(
-    caches.match(e.request).then(r => r || fetch(e.request).catch(() => caches.match('/index.html')))
-  );
+// Fetch event - Network first, fallback to cache
+self.addEventListener('fetch', event => {
+    event.respondWith(
+        fetch(event.request)
+            .then(response => {
+                if (!response || response.status !== 200 || response.type === 'error') {
+                    return response;
+                }
+                
+                const responseToCache = response.clone();
+                caches.open(CACHE_NAME)
+                    .then(cache => {
+                        cache.put(event.request, responseToCache);
+                    });
+                
+                return response;
+            })
+            .catch(err => {
+                return caches.match(event.request)
+                    .then(response => {
+                        return response || new Response('Offline - File not cached');
+                    });
+            })
+    );
+});
+
+// Background sync for notifications
+self.addEventListener('sync', event => {
+    if (event.tag === 'sync-alarms') {
+        event.waitUntil(
+            self.registration.showNotification('JEE Tracker Check', {
+                body: 'Your schedule is ready!',
+                icon: '🎓'
+            })
+        );
+    }
+});
+
+// Push notifications
+self.addEventListener('push', event => {
+    const options = {
+        body: event.data ? event.data.text() : 'Time to study!',
+        icon: '🎓',
+        badge: '📚',
+        vibrate: [200, 100, 200]
+    };
+    
+    event.waitUntil(
+        self.registration.showNotification('JEE Tracker', options)
+    );
+});
+
+// Notification click handler
+self.addEventListener('notificationclick', event => {
+    event.notification.close();
+    event.waitUntil(
+        clients.matchAll({type: 'window'}).then(clientList => {
+            for (let client of clientList) {
+                if (client.url === '/' && 'focus' in client) {
+                    return client.focus();
+                }
+            }
+            if (clients.openWindow) {
+                return clients.openWindow('/');
+            }
+        })
+    );
 });

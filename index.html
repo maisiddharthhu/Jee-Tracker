@@ -5,575 +5,421 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="JEE Tracker">
+    <meta name="apple-mobile-web-app-title" content="JEE Tracker Pro">
     <meta name="theme-color" content="#0f172a">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.svg">
-    <title>JEE Tracker</title>
+    <title>JEE Tracker Pro - Smart Alarms</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@700;800&display=swap');
-
-        :root {
-            --bg: #0a0f1e;
-            --surface: #111827;
-            --surface2: #1e2d40;
-            --blue: #3b82f6;
-            --blue-dim: rgba(59,130,246,0.15);
-            --blue-border: rgba(59,130,246,0.3);
-            --text: #e2e8f0;
-            --muted: #64748b;
-            --safe-top: env(safe-area-inset-top, 0px);
-            --safe-bottom: env(safe-area-inset-bottom, 0px);
-        }
-
-        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
-
-        html, body {
-            width: 100%; height: 100%;
-            background: var(--bg);
-            color: var(--text);
-            font-family: 'Space Mono', monospace;
-            overflow: hidden;
-        }
-
-        .app {
-            display: flex;
-            flex-direction: column;
-            height: 100dvh;
-            padding-top: var(--safe-top);
-            padding-bottom: var(--safe-bottom);
-        }
-
-        /* TOP BAR */
-        .topbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 14px 16px 10px;
-            border-bottom: 1px solid var(--blue-border);
-            flex-shrink: 0;
-        }
-
-        .logo {
-            font-family: 'Syne', sans-serif;
-            font-size: 20px;
-            font-weight: 800;
-            background: linear-gradient(90deg, #60a5fa, #93c5fd);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: -0.5px;
-        }
-
-        .clock-mini {
-            font-size: 22px;
-            font-weight: 700;
-            color: var(--blue);
-            letter-spacing: 2px;
-        }
-
-        .date-mini {
-            font-size: 10px;
-            color: var(--muted);
-            text-align: right;
-            margin-top: 1px;
-        }
-
-        /* CURRENT ACTIVITY */
-        .now-card {
-            margin: 10px 12px;
-            background: linear-gradient(135deg, #0c2340 0%, #0d3460 100%);
-            border: 1px solid var(--blue-border);
-            border-radius: 12px;
-            padding: 12px 14px;
-            flex-shrink: 0;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .now-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, #3b82f6, #60a5fa, #3b82f6);
-            background-size: 200%;
-            animation: shimmer 2s infinite;
-        }
-
-        @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
-        }
-
-        .now-label {
-            font-size: 9px;
-            letter-spacing: 2px;
-            color: #60a5fa;
-            text-transform: uppercase;
-            margin-bottom: 4px;
-        }
-
-        .now-name {
-            font-family: 'Syne', sans-serif;
-            font-size: 17px;
-            font-weight: 700;
-            color: #fff;
-            margin-bottom: 2px;
-        }
-
-        .now-detail {
-            font-size: 11px;
-            color: #93c5fd;
-        }
-
-        .now-time {
-            position: absolute;
-            right: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 11px;
-            color: #60a5fa;
-            text-align: right;
-        }
-
-        /* STATS */
-        .stats {
-            display: flex;
-            gap: 8px;
-            margin: 0 12px 10px;
-            flex-shrink: 0;
-        }
-
-        .stat {
-            flex: 1;
-            background: var(--surface);
-            border: 1px solid var(--blue-border);
-            border-radius: 8px;
-            padding: 8px;
-            text-align: center;
-        }
-
-        .stat-num {
-            font-family: 'Syne', sans-serif;
-            font-size: 20px;
-            font-weight: 800;
-            color: var(--blue);
-        }
-
-        .stat-label {
-            font-size: 9px;
-            color: var(--muted);
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            margin-top: 2px;
-        }
-
-        /* TABS */
-        .tabs {
-            display: flex;
-            gap: 6px;
-            padding: 0 12px;
-            margin-bottom: 8px;
-            flex-shrink: 0;
-        }
-
-        .tab {
-            flex: 1;
-            padding: 9px 6px;
-            background: var(--surface);
-            border: 1px solid transparent;
-            border-radius: 8px;
-            color: var(--muted);
-            font-family: 'Space Mono', monospace;
-            font-size: 11px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: center;
-        }
-
-        .tab.active {
-            background: var(--blue-dim);
-            border-color: var(--blue);
-            color: #93c5fd;
-        }
-
-        /* SCROLL LIST */
-        .list-wrap {
-            flex: 1;
-            overflow-y: auto;
-            padding: 0 12px;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .list-wrap::-webkit-scrollbar { display: none; }
-
-        .item {
-            background: var(--surface);
-            border-left: 3px solid var(--blue);
-            border-radius: 0 8px 8px 0;
-            padding: 10px 12px;
-            margin-bottom: 6px;
-            cursor: pointer;
-            transition: all 0.15s;
-            active: none;
-        }
-
-        .item:active { transform: scale(0.98); opacity: 0.8; }
-
-        .item.done {
-            border-left-color: var(--muted);
-            opacity: 0.4;
-        }
-
-        .item.done .item-name {
-            text-decoration: line-through;
-            color: var(--muted);
-        }
-
-        .item.current-item {
-            border-left-color: #10b981;
-            background: rgba(16,185,129,0.08);
-        }
-
-        .item-time {
-            font-size: 10px;
-            color: #60a5fa;
-            margin-bottom: 3px;
-        }
-
-        .item-name {
-            font-family: 'Syne', sans-serif;
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--text);
-            margin-bottom: 2px;
-        }
-
-        .item-detail {
-            font-size: 10px;
-            color: var(--muted);
-        }
-
-        /* BOTTOM BAR */
-        .bottombar {
-            padding: 8px 12px;
-            border-top: 1px solid var(--blue-border);
-            display: flex;
-            gap: 8px;
-            flex-shrink: 0;
-        }
-
-        .btn-reset {
-            flex: 1;
-            padding: 11px;
-            background: var(--surface);
-            border: 1px solid var(--blue-border);
-            border-radius: 8px;
-            color: var(--muted);
-            font-family: 'Space Mono', monospace;
-            font-size: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-reset:active { opacity: 0.7; }
-
-        .motivate {
-            font-size: 10px;
-            color: var(--muted);
-            text-align: center;
-            padding: 6px 0 4px;
-            flex-shrink: 0;
-        }
-
-        /* INSTALL BANNER */
-        .install-banner {
-            display: none;
-            margin: 0 12px 8px;
-            background: rgba(16,185,129,0.1);
-            border: 1px solid rgba(16,185,129,0.4);
-            border-radius: 8px;
-            padding: 10px 12px;
-            font-size: 11px;
-            color: #6ee7b7;
-            cursor: pointer;
-        }
-
-        .install-banner.show { display: block; }
-
-        .toast {
-            position: fixed;
-            bottom: calc(80px + var(--safe-bottom));
-            left: 50%;
-            transform: translateX(-50%) translateY(20px);
-            background: #10b981;
-            color: #fff;
-            padding: 8px 18px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
-            opacity: 0;
-            transition: all 0.3s;
-            pointer-events: none;
-            white-space: nowrap;
-            z-index: 100;
-        }
-
-        .toast.show {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        html,body{width:100%;height:100%;font-family:system-ui,-apple-system,sans-serif;background:#0f172a;color:#fff}
+        body{padding:12px;overflow-y:auto}
+        .container{max-width:600px;margin:0 auto}
+        .header{margin-bottom:20px}
+        h1{font-size:24px;margin-bottom:4px}
+        .subtext{color:#93c5fd;font-size:12px}
+        .alert-toggle{background:rgba(34,197,94,0.2);border:1px solid #22c55e;padding:12px;border-radius:8px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+        .alert-toggle .label{font-weight:600;font-size:13px}
+        .toggle-switch{width:50px;height:28px;background:#475569;border-radius:14px;cursor:pointer;position:relative;transition:0.3s}
+        .toggle-switch.on{background:#22c55e}
+        .toggle-switch .slider{position:absolute;top:2px;left:2px;width:24px;height:24px;background:#fff;border-radius:50%;transition:0.3s}
+        .toggle-switch.on .slider{left:24px}
+        .clock{background:rgba(30,41,59,0.8);padding:16px;border-radius:8px;text-align:center;margin-bottom:16px;border:1px solid rgba(59,130,246,0.3)}
+        .time{font-size:32px;font-weight:bold;color:#60a5fa}
+        .date{color:#93c5fd;font-size:12px;margin-top:4px}
+        .countdown{background:rgba(59,130,246,0.15);border:2px solid #3b82f6;padding:16px;border-radius:8px;margin-bottom:16px;text-align:center}
+        .countdown-label{font-size:11px;opacity:0.8;text-transform:uppercase;letter-spacing:1px;color:#93c5fd}
+        .countdown-time{font-size:36px;font-weight:bold;color:#ef4444;margin:8px 0;font-family:monospace}
+        .countdown-task{font-size:13px;color:#e2e8f0;margin-top:8px}
+        .tabs{display:flex;gap:8px;margin-bottom:16px;overflow-x:auto;padding-bottom:8px}
+        .tab{flex-shrink:0;padding:10px 14px;background:#475569;border:none;color:#e2e8f0;border-radius:6px;font-weight:600;cursor:pointer;font-size:13px;white-space:nowrap;transition:0.2s}
+        .tab:hover{background:#64748b}
+        .tab.active{background:#3b82f6;color:#fff;box-shadow:0 0 8px rgba(59,130,246,0.5)}
+        .current{background:linear-gradient(135deg,#0369a1 0%,#0284c7 100%);padding:16px;border-radius:8px;margin-bottom:12px;border:1px solid rgba(3,105,161,0.5);position:relative;overflow:hidden}
+        .current::before{content:'';position:absolute;top:0;right:0;width:100px;height:100px;background:rgba(255,255,255,0.05);border-radius:50%;animation:pulse 2s infinite}
+        @keyframes pulse{0%,100%{transform:scale(1);opacity:0.5}50%{transform:scale(1.2);opacity:0.8}}
+        .current .label{font-size:11px;opacity:0.8;text-transform:uppercase;letter-spacing:1px}
+        .current .name{font-size:18px;font-weight:bold;margin:8px 0;position:relative;z-index:1}
+        .current .detail{font-size:12px;opacity:0.9;position:relative;z-index:1}
+        .current .time{font-size:12px;margin-top:8px;opacity:0.9;position:relative;z-index:1}
+        .schedule{margin-bottom:16px}
+        .item{background:rgba(71,85,105,0.4);border-left:4px solid #3b82f6;padding:12px;margin-bottom:8px;border-radius:4px;cursor:pointer;transition:0.2s;user-select:none;position:relative}
+        .item:active{transform:scale(0.98)}
+        .item.active-task{background:rgba(34,197,94,0.2);border-left-color:#22c55e;box-shadow:0 0 12px rgba(34,197,94,0.3)}
+        .item.active-task::after{content:'● ACTIVE';position:absolute;top:8px;right:8px;font-size:10px;background:#22c55e;color:#000;padding:2px 6px;border-radius:3px;font-weight:bold}
+        .item.done{opacity:0.5;background:rgba(71,85,105,0.2)}
+        .item.done .name{text-decoration:line-through;color:#94a3b8}
+        .item .time{font-size:12px;font-weight:bold;opacity:0.8;color:#93c5fd}
+        .item .name{font-size:13px;font-weight:600;margin:4px 0;color:#e2e8f0}
+        .item .detail{font-size:11px;opacity:0.6;color:#cbd5e1}
+        .stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;background:rgba(30,41,59,0.6);padding:12px;border-radius:8px;margin-bottom:16px;text-align:center;border:1px solid rgba(59,130,246,0.2)}
+        .stat .num{font-size:20px;font-weight:bold;color:#60a5fa}
+        .stat .label{font-size:10px;color:#94a3b8;margin-top:4px;text-transform:uppercase}
+        .btn{width:100%;padding:12px;background:#475569;border:none;color:#e2e8f0;border-radius:6px;font-weight:600;cursor:pointer;font-size:13px;margin-bottom:12px;transition:0.2s}
+        .btn:hover{background:#64748b}
+        .btn:active{opacity:0.8}
+        .footer{text-align:center;color:#64748b;font-size:11px;margin-bottom:20px;margin-top:20px}
+        .info{background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);padding:12px;border-radius:6px;margin-bottom:16px;font-size:12px;color:#93c5fd}
+        .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:1000;align-items:center;justify-content:center}
+        .modal.show{display:flex}
+        .modal-content{background:#1e293b;border:3px solid #ef4444;padding:24px;border-radius:12px;text-align:center;max-width:320px;box-shadow:0 0 30px rgba(239,68,68,0.6);animation:slideIn 0.3s}
+        @keyframes slideIn{from{transform:scale(0.8);opacity:0}to{transform:scale(1);opacity:1}}
+        .modal-content h2{font-size:22px;margin-bottom:8px;color:#ef4444;font-weight:900}
+        .modal-content p{margin:12px 0;color:#e2e8f0;font-size:14px}
+        .modal-buttons{display:flex;gap:8px;margin-top:16px}
+        .modal-btn{flex:1;padding:12px;border:none;border-radius:6px;font-weight:600;cursor:pointer;font-size:13px;transition:0.2s}
+        .modal-btn.ok{background:#ef4444;color:#fff}
+        .modal-btn.ok:hover{background:#dc2626}
+        .modal-btn.dismiss{background:#475569;color:#e2e8f0}
+        .modal-btn.dismiss:hover{background:#64748b}
+        .alarm-indicator{display:inline-block;width:12px;height:12px;background:#ef4444;border-radius:50%;animation:blink 0.5s infinite;margin-left:4px}
+        @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
     </style>
 </head>
 <body>
-<div class="app">
-    <div class="topbar">
-        <div class="logo">🎓 JEE</div>
-        <div>
-            <div class="clock-mini" id="time">00:00</div>
-            <div class="date-mini" id="date">-</div>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 JEE Tracker Pro</h1>
+            <p class="subtext">Alarms at END of each task!</p>
+        </div>
+
+        <div class="alert-toggle">
+            <span class="label">🔔 Alarms & Sounds</span>
+            <div class="toggle-switch" id="alertToggle">
+                <div class="slider"></div>
+            </div>
+        </div>
+
+        <div class="info">
+            ✓ App loaded! Alarms enabled. You'll get notified when each task time ENDS.
+        </div>
+
+        <div class="clock">
+            <div class="time" id="time">00:00</div>
+            <div class="date" id="date">Loading...</div>
+        </div>
+
+        <div class="countdown" id="countdown">
+            <div class="countdown-label">Time Remaining</div>
+            <div class="countdown-time" id="countdownTime">00:00</div>
+            <div class="countdown-task" id="countdownTask">-</div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" data-tab="weekday">📚 Weekday</button>
+            <button class="tab" data-tab="leave">⭐ Leave</button>
+            <button class="tab" data-tab="weekend">🏃 Weekend</button>
+        </div>
+
+        <div class="current" id="current">
+            <div class="label">Right now</div>
+            <div class="name">Loading schedule...</div>
+            <div class="detail">-</div>
+            <div class="time">-</div>
+        </div>
+
+        <div class="stats">
+            <div class="stat"><div class="num" id="done">0</div><div class="label">Done</div></div>
+            <div class="stat"><div class="num" id="total">0</div><div class="label">Total</div></div>
+            <div class="stat"><div class="num" id="percent">0%</div><div class="label">Complete</div></div>
+        </div>
+
+        <div class="schedule" id="schedule"></div>
+
+        <button class="btn" id="resetBtn">↻ Reset Today</button>
+
+        <div class="footer">
+            <p>💪 Stay focused. Alarms will buzz when time's up!</p>
+            <p style="margin-top:8px">Task completion status resets each day</p>
         </div>
     </div>
 
-    <div class="now-card" id="nowCard">
-        <div class="now-label">▶ RIGHT NOW</div>
-        <div class="now-name" id="nowName">Loading...</div>
-        <div class="now-detail" id="nowDetail">-</div>
-        <div class="now-time" id="nowTime">-</div>
+    <!-- Time Up Alarm Modal -->
+    <div class="modal" id="alarmModal">
+        <div class="modal-content">
+            <h2>⏰ TIME UP! <span class="alarm-indicator"></span></h2>
+            <p id="alarmTaskName" style="font-size:16px;font-weight:bold;color:#fbbf24;">Task Name</p>
+            <p id="alarmTaskDetail" style="font-size:12px;opacity:0.9;margin-top:16px;">Move to next task!</p>
+            <div class="modal-buttons">
+                <button class="modal-btn ok" onclick="dismissAlarm()">Next Task 💪</button>
+            </div>
+        </div>
     </div>
 
-    <div class="stats">
-        <div class="stat"><div class="stat-num" id="done">0</div><div class="stat-label">Done</div></div>
-        <div class="stat"><div class="stat-num" id="total">0</div><div class="stat-label">Total</div></div>
-        <div class="stat"><div class="stat-num" id="percent">0%</div><div class="stat-label">Done</div></div>
-    </div>
+    <script>
+        // All schedule data
+        const schedules = {
+            weekday: [
+                {t:'05:00',d:'30m',a:'Wake up + Exercise',x:'Light jog/yoga'},
+                {t:'05:30',d:'45m',a:'Freshen up + Breakfast',x:'Quick meal'},
+                {t:'06:15',d:'45m',a:'Self-study (Revision)',x:'Revise yesterday'},
+                {t:'07:00',d:'1h',a:'Travel to school',x:'Read JEE Q'},
+                {t:'08:00',d:'5h',a:'SCHOOL',x:'Focus on classes'},
+                {t:'13:00',d:'1h',a:'Lunch + Rest',x:'Eat & nap 15m'},
+                {t:'14:00',d:'1h45m',a:'Self-study (New Topics)',x:'Study before class'},
+                {t:'15:45',d:'15m',a:'Light snack + Travel',x:'Energy boost'},
+                {t:'16:00',d:'4.5h',a:'LAKSHYA CLASSES',x:'Take notes'},
+                {t:'20:30',d:'30m',a:'Dinner',x:'Eat well'},
+                {t:'21:00',d:'1h',a:'Solve class problems',x:'10-15 problems'},
+                {t:'22:00',d:'30m',a:'Mistake notebook',x:'Write errors'},
+                {t:'22:30',d:'30m',a:'Prepare tomorrow',x:'Check topic'},
+                {t:'23:00',d:'-',a:'SLEEP',x:'Must sleep by 11 PM'}
+            ],
+            leave: [
+                {t:'05:00',d:'45m',a:'Wake up + Exercise',x:'Longer yoga/jog'},
+                {t:'05:45',d:'45m',a:'Freshen up + Breakfast',x:'Good breakfast'},
+                {t:'06:30',d:'1.5h',a:'Deep Self-Study',x:'Weakest chapter'},
+                {t:'08:00',d:'1h',a:'Solve problems',x:'20-30 problems'},
+                {t:'09:00',d:'1h',a:'Revision + Formulas',x:'Write formulas'},
+                {t:'10:00',d:'1.5h',a:'FULL MOCK TEST',x:'JEE Main mock'},
+                {t:'11:30',d:'1h',a:'Lunch + Rest',x:'Eat & recharge'},
+                {t:'12:30',d:'1.5h',a:'Analyze mock',x:'Review answers'},
+                {t:'14:00',d:'1.5h',a:'Solve similar problems',x:'Practice weak areas'},
+                {t:'15:30',d:'1h',a:'Light snack + Break',x:'Relax'},
+                {t:'16:30',d:'2h',a:'Revision session',x:'Quick revision'},
+                {t:'18:30',d:'1h',a:'Dinner',x:'Eat & chill'},
+                {t:'19:30',d:'1.5h',a:'Final revision',x:'Formulas & key points'},
+                {t:'21:00',d:'30m',a:'Wind down',x:'Prepare for tomorrow'},
+                {t:'21:30',d:'-',a:'SLEEP',x:'Early sleep'}
+            ],
+            weekend: [
+                {t:'07:00',d:'45m',a:'Wake up + Exercise',x:'Good workout'},
+                {t:'07:45',d:'45m',a:'Freshen up + Breakfast',x:'Heavy breakfast'},
+                {t:'08:30',d:'1.5h',a:'Weakest Topic Study',x:'Deep focus'},
+                {t:'10:00',d:'30m',a:'Short break',x:'Walk/fresh air'},
+                {t:'10:30',d:'2h',a:'Practice problems',x:'40-50 problems'},
+                {t:'12:30',d:'1.5h',a:'Lunch + Rest',x:'Good meal & nap'},
+                {t:'14:00',d:'2h',a:'FULL MOCK TEST',x:'Full JEE mock'},
+                {t:'16:00',d:'1h',a:'Mock review',x:'Analyze all answers'},
+                {t:'17:00',d:'1h',a:'Snack + Relax',x:'Chill time'},
+                {t:'18:00',d:'2h',a:'Solve similar problems',x:'Practice weak Q'},
+                {t:'20:00',d:'1h',a:'Dinner',x:'Family time'},
+                {t:'21:00',d:'1h',a:'Final review',x:'Key formulas'},
+                {t:'22:00',d:'30m',a:'Plan week ahead',x:'Next week schedule'},
+                {t:'22:30',d:'-',a:'SLEEP',x:'Good sleep'}
+            ]
+        };
 
-    <div class="tabs">
-        <button class="tab active" data-tab="weekday">📚 Weekday</button>
-        <button class="tab" data-tab="leave">⭐ Leave</button>
-        <button class="tab" data-tab="weekend">🏃 Weekend</button>
-    </div>
+        let alertsEnabled = true;
+        let currentTab = 'weekday';
+        let completed = {};
+        let lastAlertTime = null;
 
-    <div id="installBanner" class="install-banner">
-        📲 Tap to install JEE Tracker as an app on your phone!
-    </div>
+        function timeToMinutes(timeStr) {
+            const [h, m] = timeStr.split(':').map(Number);
+            return h * 60 + m;
+        }
 
-    <div class="list-wrap" id="list"></div>
+        function durationToMinutes(durStr) {
+            if (durStr === '-') return 0;
+            let mins = 0;
+            const parts = durStr.match(/(\d+(?:\.\d+)?)[hm]/g) || [];
+            parts.forEach(part => {
+                if (part.includes('h')) mins += parseInt(part) * 60;
+                if (part.includes('m')) mins += parseInt(part.replace('m', ''));
+            });
+            return mins;
+        }
 
-    <div class="motivate">💪 Consistency beats perfection. You've got this!</div>
+        function playAlarmSound() {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const now = audioContext.currentTime;
 
-    <div class="bottombar">
-        <button class="btn-reset" id="resetBtn">↻ Reset Day</button>
-    </div>
-</div>
-
-<div class="toast" id="toast"></div>
-
-<script>
-const schedules = {
-    weekday: [
-        {t:'05:00',d:'30m',a:'Wake up + Exercise',x:'Light jog/yoga'},
-        {t:'05:30',d:'45m',a:'Freshen up + Breakfast',x:'Quick meal'},
-        {t:'06:15',d:'45m',a:'Self-study (Revision)',x:'Revise yesterday'},
-        {t:'07:00',d:'1h',a:'Travel to school',x:'Read JEE Q'},
-        {t:'08:00',d:'5h',a:'SCHOOL',x:'Focus on classes'},
-        {t:'13:00',d:'1h',a:'Lunch + Rest',x:'Eat & nap 15m'},
-        {t:'14:00',d:'1h45m',a:'Self-study (New Topics)',x:'Study before class'},
-        {t:'15:45',d:'15m',a:'Light snack + Travel',x:'Energy boost'},
-        {t:'16:00',d:'4.5h',a:'LAKSHYA CLASSES',x:'Take notes'},
-        {t:'20:30',d:'30m',a:'Dinner',x:'Eat well'},
-        {t:'21:00',d:'1h',a:'Solve class problems',x:'10-15 problems'},
-        {t:'22:00',d:'30m',a:'Mistake notebook',x:'Write errors'},
-        {t:'22:30',d:'30m',a:'Prepare tomorrow',x:'Check topic'},
-        {t:'23:00',d:'-',a:'SLEEP',x:'Must sleep by 11 PM'}
-    ],
-    leave: [
-        {t:'05:00',d:'45m',a:'Wake up + Exercise',x:'Longer yoga/jog'},
-        {t:'05:45',d:'45m',a:'Freshen up + Breakfast',x:'Good breakfast'},
-        {t:'06:30',d:'1.5h',a:'Deep Self-Study',x:'Weakest chapter focus'},
-        {t:'08:00',d:'1h',a:'Solve problems',x:'20-30 problems'},
-        {t:'09:00',d:'1h',a:'Revision + Formulas',x:'Write formulas'},
-        {t:'10:00',d:'1.5h',a:'FULL MOCK TEST',x:'JEE Main mock'},
-        {t:'11:30',d:'1h',a:'Lunch + Rest',x:'Eat & recharge'},
-        {t:'12:30',d:'1.5h',a:'Analyze mock',x:'Review answers'},
-        {t:'14:00',d:'1.5h',a:'Solve similar problems',x:'Practice weak areas'},
-        {t:'15:30',d:'30m',a:'Break + Snack',x:'Rest & eat'},
-        {t:'16:00',d:'4.5h',a:'LAKSHYA CLASSES',x:'Attend coaching'},
-        {t:'20:30',d:'30m',a:'Dinner',x:'Eat well'},
-        {t:'21:00',d:'1h',a:'Solve class problems',x:'Today class'},
-        {t:'22:00',d:'1h',a:'Mistake notebook',x:'Write & prepare'},
-        {t:'23:00',d:'-',a:'SLEEP',x:'Sleep'}
-    ],
-    weekend: [
-        {t:'05:00',d:'1h',a:'Exercise + Breakfast',x:'Good exercise'},
-        {t:'06:00',d:'2h',a:'Solve 30 JEE Q',x:'Hard questions'},
-        {t:'08:00',d:'1.5h',a:'Concept revision',x:'Theory & formulas'},
-        {t:'09:30',d:'1h',a:'Break',x:'Rest & snack'},
-        {t:'10:30',d:'2h',a:'Speed drills',x:'Same-type problems'},
-        {t:'12:30',d:'1.5h',a:'Lunch + Rest',x:'Eat & nap 30m'},
-        {t:'14:00',d:'2h',a:'FULL MOCK TEST',x:'JEE Main mock'},
-        {t:'16:00',d:'1h',a:'Analyze mock',x:'Review mistakes'},
-        {t:'17:00',d:'3h',a:'FREE TIME',x:'Movie/friends/sports'},
-        {t:'20:00',d:'1h',a:'Dinner + Rest',x:'Eat & relax'},
-        {t:'21:00',d:'2h',a:'Solve similar problems',x:'Weak topics'},
-        {t:'23:00',d:'-',a:'SLEEP',x:'Sleep'}
-    ]
-};
-
-const STORAGE_KEY = 'jee_completed_v2';
-let currentTab = 'weekday';
-let completed = {};
-let deferredPrompt = null;
-
-// Load saved state
-function loadState() {
-    try {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) {
-            const data = JSON.parse(saved);
-            const today = new Date().toDateString();
-            if (data.date === today) {
-                completed = data.completed || {};
-                currentTab = data.tab || 'weekday';
+                // Alarm pattern - double beep
+                for (let i = 0; i < 3; i++) {
+                    const osc = audioContext.createOscillator();
+                    const gain = audioContext.createGain();
+                    osc.connect(gain);
+                    gain.connect(audioContext.destination);
+                    osc.frequency.value = 800 + (i * 100);
+                    gain.gain.setValueAtTime(0.4, now + i * 0.5);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.5 + 0.3);
+                    osc.start(now + i * 0.5);
+                    osc.stop(now + i * 0.5 + 0.3);
+                }
+            } catch (e) {
+                console.log('Sound not available');
             }
         }
-    } catch(e) {}
-}
 
-function saveState() {
-    try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({
-            date: new Date().toDateString(),
-            completed,
-            tab: currentTab
-        }));
-    } catch(e) {}
-}
+        function showAlarmModal(taskName, taskDetail) {
+            document.getElementById('alarmTaskName').innerText = taskName;
+            document.getElementById('alarmTaskDetail').innerText = 'Time to move to the next task!';
+            document.getElementById('alarmModal').classList.add('show');
+            playAlarmSound();
+            
+            // Browser notification
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification('⏰ TIME UP: ' + taskName, {
+                    body: 'Task duration has ended. Move to next task!',
+                    icon: '⏰',
+                    badge: '🔴',
+                    tag: 'alarm'
+                });
+            }
+        }
 
-function toMins(t) {
-    const [h, m] = t.split(':').map(Number);
-    return h * 60 + m;
-}
+        function dismissAlarm() {
+            document.getElementById('alarmModal').classList.remove('show');
+        }
 
-function getCurrentIdx() {
-    const now = new Date();
-    const mins = now.getHours() * 60 + now.getMinutes();
-    const sched = schedules[currentTab];
-    for (let i = 0; i < sched.length - 1; i++) {
-        if (mins >= toMins(sched[i].t) && mins < toMins(sched[i+1].t)) return i;
-    }
-    return 0;
-}
+        // Alert toggle
+        document.getElementById('alertToggle').addEventListener('click', function() {
+            alertsEnabled = !alertsEnabled;
+            this.classList.toggle('on');
+        });
 
-function showToast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2000);
-}
+        // Set initial toggle state
+        document.getElementById('alertToggle').classList.add('on');
 
-function updateClock() {
-    const now = new Date();
-    const h = String(now.getHours()).padStart(2,'0');
-    const m = String(now.getMinutes()).padStart(2,'0');
-    document.getElementById('time').textContent = h + ':' + m;
-    document.getElementById('date').textContent = now.toLocaleDateString('en-IN', {weekday:'short', day:'numeric', month:'short'});
-}
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentTab = this.dataset.tab;
+                completed = {};
+                lastAlertTime = null;
+                render();
+            });
+        });
 
-function render() {
-    updateClock();
-    const sched = schedules[currentTab];
-    const currIdx = getCurrentIdx();
-    const curr = sched[currIdx];
-
-    // Now card
-    document.getElementById('nowName').textContent = curr.a;
-    document.getElementById('nowDetail').textContent = curr.x;
-    document.getElementById('nowTime').textContent = curr.t + '\n' + curr.d;
-
-    // List
-    const list = document.getElementById('list');
-    list.innerHTML = '';
-    sched.forEach((item, i) => {
-        const div = document.createElement('div');
-        div.className = 'item' + (completed[i] ? ' done' : '') + (i === currIdx ? ' current-item' : '');
-        div.innerHTML = `
-            <div class="item-time">${item.t} · ${item.d}${i === currIdx ? ' ◀ NOW' : ''}</div>
-            <div class="item-name">${completed[i] ? '✓ ' : ''}${item.a}</div>
-            <div class="item-detail">${item.x}</div>
-        `;
-        div.addEventListener('click', () => {
-            completed[i] = !completed[i];
-            saveState();
-            if (completed[i]) showToast('✓ Marked done!');
+        // Reset button
+        document.getElementById('resetBtn').addEventListener('click', function() {
+            completed = {};
+            lastAlertTime = null;
             render();
         });
-        list.appendChild(div);
-    });
 
-    // Auto scroll to current
-    const items = list.querySelectorAll('.item');
-    if (items[currIdx]) {
-        setTimeout(() => items[currIdx].scrollIntoView({behavior:'smooth', block:'center'}), 100);
-    }
+        // Request notification permission
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission();
+        }
 
-    // Stats
-    const d = Object.values(completed).filter(Boolean).length;
-    const t = sched.length;
-    document.getElementById('done').textContent = d;
-    document.getElementById('total').textContent = t;
-    document.getElementById('percent').textContent = Math.round(d/t*100) + '%';
+        function updateTime() {
+            const now = new Date();
+            const h = String(now.getHours()).padStart(2,'0');
+            const m = String(now.getMinutes()).padStart(2,'0');
+            document.getElementById('time').innerText = h + ':' + m;
+            document.getElementById('date').innerText = now.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'});
+            return h + ':' + m;
+        }
 
-    // Sync tab UI
-    document.querySelectorAll('.tab').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.tab === currentTab);
-    });
-}
+        function getCurrentActivity() {
+            const now = new Date();
+            const mins = now.getHours() * 60 + now.getMinutes();
+            const sched = schedules[currentTab];
+            let curr = sched[0];
+            let idx = 0;
+            let endTime = 0;
 
-// Tabs
-document.querySelectorAll('.tab').forEach(btn => {
-    btn.addEventListener('click', function() {
-        currentTab = this.dataset.tab;
-        completed = {};
-        saveState();
+            for (let i = 0; i < sched.length - 1; i++) {
+                const [h, m] = sched[i].t.split(':').map(Number);
+                const [nh, nm] = sched[i+1].t.split(':').map(Number);
+                const start = h * 60 + m;
+                const next = nh * 60 + nm;
+                
+                if (mins >= start && mins < next) {
+                    curr = sched[i];
+                    idx = i;
+                    endTime = next;
+                    break;
+                }
+            }
+            
+            return {curr, idx, sched, endTime};
+        }
+
+        function getTimeRemaining() {
+            const now = new Date();
+            const currentMins = now.getHours() * 60 + now.getMinutes();
+            const {curr, idx, sched, endTime} = getCurrentActivity();
+
+            let remaining = 0;
+            if (idx < sched.length - 1) {
+                remaining = endTime - currentMins;
+            }
+
+            return {remaining, taskName: curr.a, taskDuration: curr.d, idx};
+        }
+
+        function updateCountdown() {
+            const {remaining} = getTimeRemaining();
+            const h = Math.floor(remaining / 60);
+            const m = remaining % 60;
+            const timeStr = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+            document.getElementById('countdownTime').innerText = timeStr;
+            
+            const {curr} = getCurrentActivity();
+            document.getElementById('countdownTask').innerText = '⏱ ' + curr.a + ' ends in ' + timeStr;
+        }
+
+        function render() {
+            const currentTime = updateTime();
+            const {curr, idx, sched, endTime} = getCurrentActivity();
+            const {remaining} = getTimeRemaining();
+
+            // Check if task time is up (alarm trigger)
+            if (alertsEnabled && remaining <= 0 && remaining > -1 && lastAlertTime !== idx) {
+                showAlarmModal(curr.a, curr.x);
+                lastAlertTime = idx;
+            }
+
+            // Update countdown
+            updateCountdown();
+
+            // Update current activity
+            document.getElementById('current').innerHTML = `
+                <div class="label">Right now</div>
+                <div class="name">${curr.a}</div>
+                <div class="detail">${curr.x}</div>
+                <div class="time">${curr.t} • ${curr.d}</div>
+            `;
+
+            // Render schedule
+            const schedDiv = document.getElementById('schedule');
+            schedDiv.innerHTML = '';
+            sched.forEach((item, i) => {
+                const isDone = completed[i];
+                const isActive = i === idx;
+                const div = document.createElement('div');
+                div.className = 'item' + (isDone ? ' done' : '') + (isActive ? ' active-task' : '');
+                div.innerHTML = `
+                    <div class="time">${item.t} • ${item.d}</div>
+                    <div class="name">${item.a}</div>
+                    <div class="detail">${item.x}</div>
+                `;
+                div.addEventListener('click', () => {
+                    completed[i] = !completed[i];
+                    render();
+                });
+                schedDiv.appendChild(div);
+            });
+
+            // Update stats
+            const d = Object.values(completed).filter(x => x).length;
+            const t = sched.length;
+            const p = t > 0 ? Math.round(d / t * 100) : 0;
+            document.getElementById('done').innerText = d;
+            document.getElementById('total').innerText = t;
+            document.getElementById('percent').innerText = p + '%';
+        }
+
+        // Service Worker registration
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed:', err));
+        }
+
+        // Initial render
         render();
-    });
-});
+        setInterval(render, 10000);
+        setInterval(updateCountdown, 10000);
 
-// Reset
-document.getElementById('resetBtn').addEventListener('click', () => {
-    completed = {};
-    saveState();
-    render();
-    showToast('↻ Day reset!');
-});
-
-// PWA Install prompt
-window.addEventListener('beforeinstallprompt', e => {
-    e.preventDefault();
-    deferredPrompt = e;
-    document.getElementById('installBanner').classList.add('show');
-});
-
-document.getElementById('installBanner').addEventListener('click', async () => {
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    const result = await deferredPrompt.userChoice;
-    deferredPrompt = null;
-    document.getElementById('installBanner').classList.remove('show');
-});
-
-// Service Worker
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').catch(() => {});
-}
-
-// Init
-loadState();
-render();
-setInterval(() => { updateClock(); }, 30000);
-</script>
+        // Allow closing modal by clicking outside
+        document.getElementById('alarmModal').addEventListener('click', function(e) {
+            if (e.target === this) dismissAlarm();
+        });
+    </script>
 </body>
 </html>
